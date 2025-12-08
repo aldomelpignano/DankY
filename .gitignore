@@ -1,2 +1,4 @@
 # Ignore the configuration file containing sensitive keys
 config.json
+src/__pycache__/
+.gitignore
