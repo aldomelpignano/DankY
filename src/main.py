@@ -1,5 +1,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, filters, MessageHandler
+from telegram.constants import ParseMode
 from Word import Word
 from AnkiLoader import AnkiLoader
 import json
@@ -53,12 +54,37 @@ MODEL_NAME = "DankY"
 ############################################
 
 # /start command
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "📚 Welcome! Send me an English word, and I will generate a flashcard for Anki.\n"
-        "I will fetch definitions, examples, synonyms, antonyms, IPA, and translations automatically.\n\n"
-        "⚠️ Make sure Anki is running with AnkiConnect installed.\n"
-        "✍️ Send me a word to start!"
+        "📚 *Welcome to your DankY assistant for Anki!*\n\n"
+
+        "If you're a language learner and you use Anki every day, "
+        "you probably know how tedious it is to create flashcards manually. "
+        "Collecting *definitions*, *examples*, *IPA*, *translations*, *synonyms*, and *antonyms* over and over can get boring fast.\n\n"
+
+        "🤖 *What is DankY?*\n"
+        "DankY is *an automated Telegram bot that generates flashcards for you using open-source dictionaries.* "
+        "Currently it supports English vocabulary, with more languages like German coming soon!\n\n"
+
+        "✨ *Features*\n"
+        "🇬🇧 Generates English flashcards based on the Free Dictionary API\n"
+        "🗂️ Includes up to 15 definition–example pairs, plus IPA, translations, synonyms, and antonyms\n\n"
+
+        "⚙️ *How to use DankY?*\n"
+        "1. Make sure Anki is running with AnkiConnect enabled\n"
+        "2. Send me a word in English (German support coming soon!)\n"
+        "3. Wait a few seconds ⏳\n"
+        "4. Receive confirmation when the flashcard is added\n\n"
+
+        "🧠 *Goal*\n"
+        "Automate sentence mining: you study, DankY does the hard work.\n\n"
+
+        "🚧 *Note:* DankY is still in development, but it’s already usable.\n"
+        "🧪 *Version:* 1.0 (beta)\n\n"
+
+        "💻 *Developer:* @zTamiel\n\n"
+        "✍️ *Send me a word to get started!*",
+        parse_mode=ParseMode.MARKDOWN
     )
 
 # /help command
@@ -71,7 +97,19 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Commands available:\n"
         "• /start — Welcome message\n"
         "• /help — Show this help message\n"
-        "• /github — Links to the github of this bot"
+        "• /about — Links to the github of this bot"
+    )
+
+# /about command
+async def about(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "👋 Hey there! *Want to supercharge your language learning journey*?\n\n"
+        "📚 This bot instantly creates Anki flashcards for any English word — _definitions_, _examples_, _IPA_, and even _translations_ included!\n\n"
+        "💻 Check out the source code and updates on *GitHub*.\n\n"
+        "👤 _ - Built with ❤️ by *@zTamiel*, a passionate coder and language lover_",
+        parse_mode=ParseMode.MARKDOWN,
+
+        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🌐 Visit GitHub", url="https://github.com/aldomelpignano/DankY")]])
     )
 
 # Handle incoming words
@@ -95,24 +133,22 @@ async def handle_word(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             msg = await update.message.reply_text(f"🔍 Processing '{lemma}'...")
 
-            # Check if word already exists
-            if anki.checkExistence(lemma):
-                await msg.edit_text(f"⚠️ '{lemma}' already exists in your Anki deck.")
-                continue
-
-            # Add note to Anki
+            # Let AnkiLoader handle duplicates and errors
             anki.addNotes(word_obj)
+
             await msg.edit_text(f"✅ '{lemma}' added successfully to Anki!")
 
         except Exception as e:
-            await update.message.reply_text(f"🚫 Error processing '{word}': {str(e)}")
+            await update.message.edit_text(f"🚫 Error processing '{word}': {str(e)}")
+
 
 # MAIN
 if __name__ == "__main__":
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
 
-    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("start", start_command))
     app.add_handler(CommandHandler("help", help_command))
+    app.add_handler(CommandHandler("about", about))
     app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_word))
 
     print("Bot is running...")

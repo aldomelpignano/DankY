@@ -85,14 +85,10 @@ class Word:
                 definition = d.get("definition")
                 example = d.get("example")
 
-                # Skip definitions without examples
-                if not example:
-                    continue
-
                 # Add definition and example to the list
                 definitions.append({
-                    f"def{len(definitions)+1}": definition,
-                    f"ex{len(definitions)+1}": example
+                    f"def{len(definitions)+1}": definition if definition else "",
+                    f"ex{len(definitions)+1}": example if example else ""
                 })
 
                 # Stop if maximum definitions reached
