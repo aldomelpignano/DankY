@@ -1,0 +1,67 @@
+# locales/en.yaml
+
+# --- START COMMAND MESSAGE ---
+start: |
+  📚 *Welcome to your DankY assistant for Anki!*
+
+  If you're a language learner and you use Anki every day, 
+  you probably know how tedious it is to create flashcards manually. 
+  Collecting *definitions*, *examples*, *IPA*, *translations*, *synonyms*, and *antonyms* over and over can get boring fast.
+
+  🤖 *What is DankY?*
+  DankY is *an automated Telegram bot that generates flashcards for you using open-source dictionaries.* 
+  Currently it supports English vocabulary, with more languages like German coming soon!
+
+  ✨ *Features*
+  🇬🇧 Generates English flashcards based on the Free Dictionary API
+  🗂️ Includes up to 15 definition–example pairs, plus IPA, translations, synonyms, and antonyms
+
+  ⚙️ *How to use DankY?*
+  1. Make sure Anki is running with AnkiConnect enabled
+  2. Send me a word in English (German support coming soon!)
+  3. Wait a few seconds ⏳
+  4. Receive confirmation when the flashcard is added
+
+  🧠 *Goal*
+  Automate sentence mining: you study, DankY does the hard work.
+
+  🚧 *Note:* DankY is still in development, but it’s already usable.
+  🧪 *Version:* 1.0 (beta)
+
+  💻 *Developer:* @zTamiel
+
+  ✍️ *Send me a word to get started!*
+
+# --- HELP COMMAND MESSAGE ---
+help: |
+  📌 How it works:
+  • Send a single English word
+  • The bot fetches definitions, examples, synonyms, antonyms, IPA, and Italian translation
+  • The flashcard is added to your Anki deck automatically
+
+  Commands available:
+  • /start — Welcome message
+  • /help — Show this help message
+  • /about — Links to the GitHub of this bot
+
+# --- ABOUT COMMAND MESSAGE ---
+about: |
+  👋 Hey there! *Want to supercharge your language learning journey*?
+
+  📚 This bot instantly creates Anki flashcards for any English word — _definitions_, _examples_, _IPA_, and even _translations_ included!
+
+  💻 Check out the source code and updates on *GitHub*.
+
+  👤 _Built with ❤️ by *@zTamiel*, a passionate coder and language lover_
+
+about_gitHub_button: "🌐 Visit GitHub"
+
+#--- SELECT LANGUAGE MESSAGE --- 
+BOT_select_language: "🌍 Pick the bot interface language you want!"
+BOT_changed_language: "🎉 Bot interface language updated succesfully"
+
+# --- DYNAMIC MESSAGES ---
+processing: "🔍 Processing '{word}'..."
+success: "✅ '{word}' added successfully to Anki!"
+error: "🚫 Error processing '{word}': {error}"
+anki_connection_error: "⚠️ Cannot connect to Anki: {error}"

@@ -1,0 +1,67 @@
+# locales/fr.yaml
+
+# --- START COMMAND MESSAGE ---
+start: |
+  📚 *Bienvenue dans votre assistant DankY pour Anki !*
+
+  Si vous apprenez une langue et utilisez Anki tous les jours, 
+  vous savez probablement à quel point il peut être fastidieux de créer des flashcards manuellement. 
+  Collecter encore et encore *définitions*, *exemples*, *IPA*, *traductions*, *synonymes* et *antonymes* peut rapidement devenir ennuyeux.
+
+  🤖 *Qu'est-ce que DankY ?*
+  DankY est *un bot Telegram automatisé qui génère des flashcards pour vous à partir de dictionnaires open-source.* 
+  Il prend actuellement en charge le vocabulaire anglais, avec d'autres langues comme l'allemand bientôt disponibles !
+
+  ✨ *Fonctionnalités*
+  🇬🇧 Génère des flashcards anglaises basées sur l'API Free Dictionary
+  🗂️ Inclut jusqu'à 15 paires définition–exemple, ainsi que l'IPA, les traductions, les synonymes et les antonymes
+
+  ⚙️ *Comment utiliser DankY ?*
+  1. Assurez-vous qu'Anki est ouvert et qu'AnkiConnect est activé
+  2. Envoyez-moi un mot en anglais (l'allemand sera bientôt supporté !)
+  3. Patientez quelques secondes ⏳
+  4. Recevez une confirmation lorsque la flashcard est ajoutée
+
+  🧠 *Objectif*
+  Automatiser le sentence mining : vous étudiez, DankY fait le travail difficile.
+
+  🚧 *Remarque :* DankY est encore en développement, mais déjà utilisable.
+  🧪 *Version :* 1.0 (bêta)
+
+  💻 *Développeur :* @zTamiel
+
+  ✍️ *Envoyez-moi un mot pour commencer !*
+
+# --- HELP COMMAND MESSAGE ---
+help: |
+  📌 Comment ça fonctionne :
+  • Envoyez un seul mot en anglais
+  • Le bot récupère définitions, exemples, synonymes, antonymes, IPA et traduction en italien
+  • La flashcard est ajoutée automatiquement à votre deck Anki
+
+  Commandes disponibles :
+  • /start — Message de bienvenue
+  • /help — Affiche ce message d'aide
+  • /about — Lien vers le GitHub du bot
+
+# --- ABOUT COMMAND MESSAGE ---
+about: |
+  👋 Salut ! *Vous voulez booster votre apprentissage des langues* ?
+
+  📚 Ce bot crée instantanément des flashcards Anki pour n'importe quel mot anglais — _définitions_, _exemples_, _IPA_ et même _traductions_ inclus !
+
+  💻 Consultez le code source et les mises à jour sur *GitHub*.
+
+  👤 _Créé avec ❤️ par *@zTamiel*, un passionné de code et de langues_
+
+about_gitHub_button: "🌐 Visiter GitHub"
+
+#--- SELECT LANGUAGE MESSAGE --- 
+BOT_select_language: "🌍 Choisissez la langue de l'interface du bot !"
+BOT_changed_language: "🎉 Langue de l'interface du bot mise à jour avec succès"
+
+# --- DYNAMIC MESSAGES ---
+processing: "🔍 Traitement de '{word}'..."
+success: "✅ '{word}' ajoutée avec succès à Anki !"
+error: "🚫 Erreur lors du traitement de '{word}' : {error}"
+anki_connection_error: "⚠️ Impossible de se connecter à Anki : {error}"

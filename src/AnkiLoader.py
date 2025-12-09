@@ -55,7 +55,7 @@ class AnkiLoader:
             "lemma": word_obj.lemmatize(),
             "IPA": word_obj.get_IPA(),
             "POS": word_obj.get_POS(),
-            "translated_lemma": word_obj.get_translation("it"),
+            "translated_lemma": word_obj.get_translation(),
             "synonyms": word_obj.get_synonyms(),
             "antonyms": word_obj.get_antonyms(),
         }

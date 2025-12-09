@@ -1,0 +1,67 @@
+# locales/de.yaml
+
+# --- START COMMAND MESSAGE ---
+start: |
+  📚 *Willkommen zu deinem DankY-Assistenten für Anki!*
+
+  Wenn du eine Sprache lernst und Anki täglich benutzt, 
+  weißt du wahrscheinlich, wie mühsam es ist, Flashcards manuell zu erstellen. 
+  Wiederholt *Definitionen*, *Beispiele*, *IPA*, *Übersetzungen*, *Synonyme* und *Antonyme* zu sammeln, kann schnell langweilig werden.
+
+  🤖 *Was ist DankY?*
+  DankY ist *ein automatisierter Telegram-Bot, der Flashcards für dich mit Open-Source-Wörterbüchern erstellt.* 
+  Derzeit unterstützt er englischen Wortschatz, weitere Sprachen wie Deutsch folgen bald!
+
+  ✨ *Funktionen*
+  🇬🇧 Erstellt englische Flashcards basierend auf der Free Dictionary API
+  🗂️ Enthält bis zu 15 Definition–Beispiel-Paare, zusätzlich IPA, Übersetzungen, Synonyme und Antonyme
+
+  ⚙️ *Wie benutzt man DankY?*
+  1. Stelle sicher, dass Anki läuft und AnkiConnect aktiviert ist
+  2. Schicke mir ein Wort auf Englisch (Deutsch wird bald unterstützt!)
+  3. Warte ein paar Sekunden ⏳
+  4. Erhalte eine Bestätigung, wenn die Flashcard hinzugefügt wurde
+
+  🧠 *Ziel*
+  Automatisiere das Sentence Mining: du lernst, DankY macht die harte Arbeit.
+
+  🚧 *Hinweis:* DankY ist noch in Entwicklung, aber bereits nutzbar.
+  🧪 *Version:* 1.0 (Beta)
+
+  💻 *Entwickler:* @zTamiel
+
+  ✍️ *Schicke mir ein Wort, um zu starten!*
+
+# --- HELP COMMAND MESSAGE ---
+help: |
+  📌 So funktioniert es:
+  • Sende ein einzelnes englisches Wort
+  • Der Bot holt Definitionen, Beispiele, Synonyme, Antonyme, IPA und Übersetzung ins Italienische
+  • Die Flashcard wird automatisch zu deinem Anki-Deck hinzugefügt
+
+  Verfügbare Befehle:
+  • /start — Begrüßungsnachricht
+  • /help — Zeigt diese Hilfenachricht
+  • /about — Link zum GitHub des Bots
+
+# --- ABOUT COMMAND MESSAGE ---
+about: |
+  👋 Hey! *Willst du dein Sprachlern-Erlebnis boosten*?
+
+  📚 Dieser Bot erstellt sofort Anki-Flashcards für jedes englische Wort — _Definitionen_, _Beispiele_, _IPA_ und sogar _Übersetzungen_ sind enthalten!
+
+  💻 Sieh dir den Quellcode und Updates auf *GitHub* an.
+
+  👤 _Erstellt mit ❤️ von *@zTamiel*, einem leidenschaftlichen Coder und Sprachliebhaber_
+
+about_gitHub_button: "🌐 GitHub besuchen"
+
+#--- SELECT LANGUAGE MESSAGE --- 
+BOT_select_language: "🌍 Wähle die Sprache für die Bot-Oberfläche!"
+BOT_changed_language: "🎉 Bot-Oberflächensprache erfolgreich aktualisiert"
+
+# --- DYNAMIC MESSAGES ---
+processing: "🔍 Verarbeite '{word}'..."
+success: "✅ '{word}' erfolgreich zu Anki hinzugefügt!"
+error: "🚫 Fehler beim Verarbeiten von '{word}': {error}"
+anki_connection_error: "⚠️ Verbindung zu Anki fehlgeschlagen: {error}"

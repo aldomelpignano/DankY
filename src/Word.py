@@ -4,7 +4,7 @@ import os
 
 class Word:
 
-    def __init__(self, word='none'):
+    def __init__(self, word='none', source_language = "en", target_language = None):
         # Raise error if no word is provided
         if word == 'none':
             raise ValueError("You must provide a word.")
@@ -15,6 +15,10 @@ class Word:
         self.rawJson = []
         # URL for the dictionary API
         self.dictionary = f"https://api.dictionaryapi.dev/api/v2/entries/en/{self.word}"
+        
+        #set the target language for translation
+        self.target_language = target_language #Your mother tongue 
+        self.source_language = source_language # The language you're learning
 
     def _get_json(self):
         # Only fetch JSON if we haven't already
@@ -175,9 +179,12 @@ class Word:
         except requests.RequestException as e:
             print(f"Failed to download audio for '{self.word}': {e}")
 
-    def get_translation(self, target_lang):
+    def get_translation(self):
         # Translate the word to the target language using Lingva API
-        url = f"https://lingva.ml/api/v1/en/{target_lang}/{self.word}"
+        if self.target_language is not None:
+            url = f"https://lingva.ml/api/v1/{self.source_lang}/{self.target_language}/{self.word}"
+        else:
+            return ""
 
         try:
             r = requests.get(url, timeout=10)
