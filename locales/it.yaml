@@ -65,3 +65,9 @@ processing: "🔍 Elaborazione '{word}'..."
 success: "✅ '{word}' aggiunta con successo ad Anki!"
 error: "🚫 Errore durante l'elaborazione di '{word}': {error}"
 anki_connection_error: "⚠️ Impossibile connettersi ad Anki: {error}"
+
+# --- DECK COMMAND MESSAGES ---
+no_deck_name_provided: "❌ ERRORE: Devi specificare un nome di mazzo. Uso corretto: /deck _[NomeMazzo]_"
+no_deck selected: "❌ ERRORE: Nessun mazzo selezionato. Usa prima /deck _[NomeMazzo]_"
+deck_not_found: "❌ Ops! Il mazzo _'{deck}'_ non esiste in Anki. Controlla ortografia e maiuscole/minuscole."
+deck_set_success: "🎉 *Mazzo selezionato!* ✔️\nOra stai usando: _{deck}_"

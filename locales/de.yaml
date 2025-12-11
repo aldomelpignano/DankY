@@ -65,3 +65,9 @@ processing: "🔍 Verarbeite '{word}'..."
 success: "✅ '{word}' erfolgreich zu Anki hinzugefügt!"
 error: "🚫 Fehler beim Verarbeiten von '{word}': {error}"
 anki_connection_error: "⚠️ Verbindung zu Anki fehlgeschlagen: {error}"
+
+# --- DECK COMMAND MESSAGES ---
+no_deck_name_provided: "❌ FEHLER: Du musst einen Decknamen angeben. Richtige Verwendung: /deck _[DeckName]_"
+no_deck selected: "❌ FEHLER: Kein Deck ausgewählt. Benutze zuerst /deck _[DeckName]_"
+deck_not_found: "❌ Hoppla! Das Deck _'{deck}'_ existiert nicht in Anki. Überprüfe Schreibweise und Groß-/Kleinschreibung."
+deck_set_success: "🎉 *Deck ausgewählt!* ✔️\nDu benutzt jetzt: _{deck}_"

@@ -3,6 +3,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, filte
 from telegram.constants import ParseMode
 from Word import Word
 from AnkiLoader import AnkiLoader
+from DeckManager import DeckManager
 from lang import LanguageManager
 import json
 import os
@@ -35,8 +36,14 @@ if not TELEGRAM_TOKEN or TELEGRAM_TOKEN == "YOUR_TELEGRAM_BOT_API":
     raise ValueError("TELEGRAM_BOT_API is not set or invalid. Please configure it in config.json.")
 
 ## --- + Constants +--- ##
-DECK_NAME = "EnglishWords"  # Default Anki deck to add words to
-MODEL_NAME = "DankY"        # Anki model used for notes
+# Initialize DeckManager and load default deck safely
+deck_manager = DeckManager()
+try:
+    DECK_NAME = deck_manager.get_loaded_deck()
+except ValueError:
+    DECK_NAME = None  # fallback if no deck selected
+
+MODEL_NAME = "DankY"  # Anki model used for notes
 
 # Initialize LanguageManager instance to handle localization and translations
 lang_manager = LanguageManager()
@@ -57,7 +64,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(locale["help"], parse_mode=ParseMode.MARKDOWN)
 
 # /about command: shows info about the bot, including a GitHub link
-async def about(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def about_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         locale["about"],
         parse_mode=ParseMode.MARKDOWN,
@@ -69,9 +76,7 @@ async def about(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # /lang command: lets user select bot language
 async def lang_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     available_languages = lang_manager.get_available_languages()  # Fetch supported languages
-
     languages_list = list(available_languages.items())
-
     buttons_per_row = 2  # Number of language buttons per row
 
     # Create inline keyboard for language selection
@@ -88,7 +93,6 @@ async def lang_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Callback handler for inline language buttons
 async def lang_button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global locale
-
     query = update.callback_query
     await query.answer()  # Acknowledge button press
 
@@ -109,8 +113,34 @@ async def lang_button_callback(update: Update, context: ContextTypes.DEFAULT_TYP
         # Notify user that language has changed
         await query.edit_message_text(locale.get("BOT_changed_language"))
 
+# /deck command: user specifies which deck to use
+async def deck_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # Check if the user provided a deck name
+    if len(context.args) == 0:
+        await update.message.reply_text(locale.get("no_deck_name_provided"), parse_mode=ParseMode.MARKDOWN)
+        return
+
+    deck_name = " ".join(context.args) # Combine args in case deck name has spaces
+
+    # Initialize DeckManager
+    manager = DeckManager()
+
+    # Check if the specified deck exists
+    if not manager.check_deck_existence(deck_name):
+        await update.message.reply_text(locale.get("deck_not_found").format(deck=deck_name), parse_mode=ParseMode.MARKDOWN)
+        return
+
+    # Set the selected deck
+    manager.set_deck(deck_name)
+    global DECK_NAME
+    DECK_NAME = deck_name  # update global variable for use in handle_word
+    await update.message.reply_text(locale.get("deck_set_success").format(deck=deck_name), parse_mode=ParseMode.MARKDOWN)
+
 # Handle incoming words sent by user (non-command messages)
 async def handle_word(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if DECK_NAME is None:
+        await update.message.reply_text(locale.get("no_deck_selected"), parse_mode=ParseMode.MARKDOWN)
+        return
 
     raw_text = update.message.text.strip()  # Clean extra whitespace
     words = [w.strip() for w in raw_text.split(",") if w.strip()]  # Split comma-separated words
@@ -151,7 +181,8 @@ if __name__ == "__main__":
     # Add handlers for commands
     app.add_handler(CommandHandler("start", start_command))
     app.add_handler(CommandHandler("help", help_command))
-    app.add_handler(CommandHandler("about", about))
+    app.add_handler(CommandHandler("about", about_command))
+    app.add_handler(CommandHandler("deck", deck_command))
     app.add_handler(CommandHandler("lang", lang_command))
 
     # Handle inline button callbacks
