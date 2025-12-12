@@ -52,7 +52,7 @@ about: |
 
   💻 Sieh dir den Quellcode und Updates auf *GitHub* an.
 
-  👤 _Erstellt mit ❤️ von *@zTamiel*, einem leidenschaftlichen Coder und Sprachliebhaber_
+  👤 _Erstellt mit ❤️ von @zTamiel, einem leidenschaftlichen Coder und Sprachliebhaber_
 
 about_gitHub_button: "🌐 GitHub besuchen"
 
@@ -65,6 +65,12 @@ processing: "🔍 Verarbeite '{word}'..."
 success: "✅ '{word}' erfolgreich zu Anki hinzugefügt!"
 error: "🚫 Fehler beim Verarbeiten von '{word}': {error}"
 anki_connection_error: "⚠️ Verbindung zu Anki fehlgeschlagen: {error}"
+
+file_unsupported_format: "❌ Nicht unterstütztes Dateiformat. Unterstützt: .xlsx, .csv, .tsv, .txt"
+file_empty: "❌ Die Datei ist leer oder enthält keine gültigen Wörter."
+file_read_error: "❌ Fehler beim Lesen der Datei '{filename}': {error}"
+file_import_started: "🔍 Import gestartet: {num_words} Wörter gefunden..."
+file_import_completed: "✅ Import abgeschlossen!\n• Hinzugefügt: *{imported}*\n• Fehler: *{errors}*"
 
 # --- DECK COMMAND MESSAGES ---
 no_deck_name_provided: "❌ FEHLER: Du musst einen Decknamen angeben. Richtige Verwendung: /deck _[DeckName]_"

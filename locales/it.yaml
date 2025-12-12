@@ -52,7 +52,7 @@ about: |
 
   💻 Dai un’occhiata al codice sorgente e agli aggiornamenti su *GitHub*.
 
-  👤 _Sviluppato con ❤️ da *@zTamiel*, un appassionato di coding e lingue_
+  👤 _Sviluppato con ❤️ da @zTamiel, un appassionato di coding e lingue_
 
 about_gitHub_button: "🌐 Visita GitHub"
 
@@ -65,6 +65,13 @@ processing: "🔍 Elaborazione '{word}'..."
 success: "✅ '{word}' aggiunta con successo ad Anki!"
 error: "🚫 Errore durante l'elaborazione di '{word}': {error}"
 anki_connection_error: "⚠️ Impossibile connettersi ad Anki: {error}"
+
+file_unsupported_format: "❌ Formato file non supportato. Supportati: .xlsx, .csv, .tsv, .txt"
+file_empty: "❌ Il file è vuoto o non contiene parole valide."
+file_read_error: "❌ Errore durante la lettura del file '{filename}': {error}"
+file_import_started: "🔍 Importazione avviata: {num_words} parole trovate..."
+file_import_completed: "✅ Importazione completata!\n• Aggiunte: *{imported}*\n• Errori: *{errors}*"
+
 
 # --- DECK COMMAND MESSAGES ---
 no_deck_name_provided: "❌ ERRORE: Devi specificare un nome di mazzo. Uso corretto: /deck _[NomeMazzo]_"

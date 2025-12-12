@@ -1,55 +1,46 @@
+# src/AnkiLoader.py
+
 import requests
 import json
 
 from Word import Word
+from logger import log
 
 class AnkiLoader:
     
-    def __init__ (self, deck_name: str, endpoint: str = "http://127.0.0.1:8765", model_name: str = "DankY"):
-        
-        # Basic initialization of Anki loader attributes
+    def __init__(self, deck_name: str, endpoint: str = "http://127.0.0.1:8765", model_name: str = "DankY"):
         self.deck_name = deck_name
         self.endpoint = endpoint
         self.model_name = model_name
-    
+        log(f"AnkiLoader initialized with deck='{deck_name}', model='{model_name}'", level="DEBUG")
+
     def _setPayload(self, action: str, lemma: str = None, version: int = 6):
-        # Prepares a payload dictionary for AnkiConnect API
-        payload = {
-            "action": action,
-            "version": version,
-        }
-
-        # When searching for notes, include query with deck and lemma
+        payload = {"action": action, "version": version}
         if action == "findNotes":
-            payload["params"] = {
-                "query": f"deck:{self.deck_name} lemma:{lemma}"
-            }
-
+            payload["params"] = {"query": f"deck:{self.deck_name} lemma:{lemma}"}
+            log(f"Payload for findNotes: {payload}", level="DEBUG")
         return payload
     
     def _executePayload(self, payload) -> dict:
-        # Sends the prepared payload to AnkiConnect and safely handles errors
+        log(f"Sending payload to AnkiConnect: {payload}", level="DEBUG")
         try:
             response = requests.post(self.endpoint, json=payload, timeout=10)
-            response.raise_for_status()  # Raises HTTP error if one occurred
-
-            return response.json()  # May raise ValueError if invalid JSON
-
-        except requests.exceptions.RequestException:
-            # Handles connection issues (Anki not running, API unreachable, etc.)
-            raise ConnectionError("Connection with Anki failed, make sure you have opened Anki with AnkiConnect installed.")
-
-        except ValueError:
-            # Triggered when AnkiConnect returns invalid JSON
-            raise ConnectionError("Anki returned invalid JSON data. Check AnkiConnect.")
+            response.raise_for_status()
+            json_response = response.json()
+            log(f"AnkiConnect response: {json_response}", level="DEBUG")
+            return json_response
+        except requests.exceptions.RequestException as e:
+            log(f"RequestException: {e}", level="DEBUG")
+            raise ConnectionError("Connection with Anki failed, make sure Anki and AnkiConnect are running.")
+        except ValueError as e:
+            log(f"ValueError parsing JSON: {e}", level="DEBUG")
+            raise ConnectionError("Anki returned invalid JSON data.")
     
     def _tryConnectionToAnki(self):
-        # Basic version check to confirm AnkiConnect is available
         payload = self._setPayload("version")
         return self._executePayload(payload)
         
     def _prepareFields(self, word_obj: Word):
-        # Builds the dictionary of fields used to populate an Anki note
         fields = {
             "url": word_obj.get_source_url(),
             "lemma": word_obj.lemmatize(),
@@ -60,38 +51,32 @@ class AnkiLoader:
             "antonyms": word_obj.get_antonyms(),
         }
 
-        # Retrieves definitions and maps the first 15 entries into fields
         definitions = word_obj.get_definition()
-
+        if not definitions:
+            definitions = [{"def1": "Definition not found", "ex1": ""}]
+        
         for i, d in enumerate(definitions[:15]):
             for key, value in d.items():
-                fields[key] = value if value else ""  # trasforma None in stringa vuota
-
-
+                fields[key] = value if value else ""
+        
+        log(f"Prepared fields: {fields}", level="DEBUG")
         return fields
 
     def checkExistence(self, lemma) -> bool:
-        """Check if a card already exists in the deck, avoiding duplicates"""
-
         payload = self._setPayload("findNotes", lemma)
         response = self._executePayload(payload)
-
-        return bool(response.get("result"))  # Returns True if one or more notes exist
+        exists = bool(response.get("result"))
+        log(f"Check existence for '{lemma}': {exists}", level="DEBUG")
+        return exists
 
     def addNotes(self, word_obj: Word):
-        
-        # Prepares all fields required for the note
         fields = self._prepareFields(word_obj)
-
-        # Required fields that must be present in order to create a note
         required_fields = ["lemma", "def1"]
-
-        # Checks if any required field is missing
         check_missing = [f for f in required_fields if not fields.get(f)]
         if check_missing:
+            log(f"Missing required fields: {check_missing}", level="DEBUG")
             raise ValueError(f"Cannot create note: missing fields {check_missing}")
 
-        # Payload for adding a note through AnkiConnect
         payload = {
             "action": "addNote",
             "version": 6,
@@ -105,11 +90,11 @@ class AnkiLoader:
             }
         }
 
-        # Retrieves lemma once to avoid recomputing it
         lemma = word_obj.lemmatize()
-
-        # Adds note only if it does not already exist
         if not self.checkExistence(lemma):
-            self._executePayload(payload)
+            log(f"Adding note for '{lemma}'", level="DEBUG")
+            response = self._executePayload(payload)
+            log(f"Note added response: {response}", level="DEBUG")
         else:
+            log(f"Word '{lemma}' already exists, skipping.", level="DEBUG")
             raise ValueError(f"The word '{lemma}' already exists in the deck '{self.deck_name}'.")

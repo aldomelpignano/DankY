@@ -1,4 +1,38 @@
-# Ignore the configuration file containing sensitive keys
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Config files with secrets
 config.json
-src/__pycache__/
-.gitignore
+
+# Logs
+/__logs__/
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Audio/temp downloads
+src/.temp_audio/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# IDE/editor settings
+.vscode/
+.idea/
+*.iml
+
+# Mac OS
+.DS_Store
+
+# Windows
+Thumbs.db
