@@ -6,7 +6,7 @@ from telegram.constants import ParseMode
 from Word import Word
 from AnkiLoader import AnkiLoader
 from DeckManager import DeckManager
-from lang import LanguageManager
+from LanguageManager import LanguageManager
 import json
 import os
 import csv
@@ -57,8 +57,14 @@ except ValueError:
     DECK_NAME = None  # fallback if no deck selected
 
 MODEL_NAME = "DankY"  # default Anki model
+
+## language manager and LOCALE loading
 lang_manager = LanguageManager()  # handle localization and translation
-locale = lang_manager.load_locale()  # load messages in selected bot language
+
+LOCALE = lang_manager.load_locale()  # load messages in selected bot language
+TARGET_LANGUAGE = lang_manager.get_target_language()
+TRANSLATION_LANGUAGE = lang_manager.get_translation_language()
+
 
 # #################################################
 #                  BOT COMMANDS                  #
@@ -66,19 +72,19 @@ locale = lang_manager.load_locale()  # load messages in selected bot language
 
 # /start command: sends greeting message
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(locale["start"], parse_mode=ParseMode.MARKDOWN)
+    await update.message.reply_text(LOCALE["start"], parse_mode=ParseMode.MARKDOWN)
 
 # /help command: sends instructions/help text
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(locale["help"], parse_mode=ParseMode.MARKDOWN)
+    await update.message.reply_text(LOCALE["help"], parse_mode=ParseMode.MARKDOWN)
 
 # /about command: shows bot info and GitHub link
 async def about_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        locale["about"],
+        LOCALE["about"],
         parse_mode=ParseMode.MARKDOWN,
         reply_markup=InlineKeyboardMarkup(
-            [[InlineKeyboardButton(locale.get("about_github_button", "GitHub"), url="https://github.com/aldomelpignano/DankY")]]
+            [[InlineKeyboardButton(LOCALE.get("about_github_button", "GitHub"), url="https://github.com/aldomelpignano/DankY")]]
         )
     )
 
@@ -97,11 +103,11 @@ async def lang_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         for i in range(0, len(languages_list), buttons_per_row)
     ]
     
-    await update.message.reply_text(locale.get("BOT_select_language"), reply_markup=InlineKeyboardMarkup(keyboard))
+    await update.message.reply_text(LOCALE.get("BOT_select_language"), reply_markup=InlineKeyboardMarkup(keyboard))
 
 # Callback handler for inline language buttons
 async def lang_button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    global locale
+    global LOCALE
     query = update.callback_query
     await query.answer()  # acknowledge the button press
 
@@ -117,15 +123,15 @@ async def lang_button_callback(update: Update, context: ContextTypes.DEFAULT_TYP
         )
         
         # Reload localized messages
-        locale = lang_manager.load_locale()
+        LOCALE = lang_manager.load_locale()
 
         # Notify user of successful language change
-        await query.edit_message_text(locale.get("BOT_changed_language"))
+        await query.edit_message_text(LOCALE.get("BOT_changed_language"))
 
 # /deck command: set the deck to be used
 async def deck_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if len(context.args) == 0:
-        await update.message.reply_text(locale.get("no_deck_name_provided"), parse_mode=ParseMode.MARKDOWN)
+        await update.message.reply_text(LOCALE.get("no_deck_name_provided"), parse_mode=ParseMode.MARKDOWN)
         return
 
     deck_name = " ".join(context.args)
@@ -133,14 +139,14 @@ async def deck_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Check if deck exists in Anki
     if not manager.check_deck_existence(deck_name):
-        await update.message.reply_text(locale.get("deck_not_found").format(deck=deck_name), parse_mode=ParseMode.MARKDOWN)
+        await update.message.reply_text(LOCALE.get("deck_not_found").format(deck=deck_name), parse_mode=ParseMode.MARKDOWN)
         return
 
     # Set selected deck in config
     manager.set_deck(deck_name)
     global DECK_NAME
     DECK_NAME = deck_name
-    await update.message.reply_text(locale.get("deck_set_success").format(deck=deck_name), parse_mode=ParseMode.MARKDOWN)
+    await update.message.reply_text(LOCALE.get("deck_set_success").format(deck=deck_name), parse_mode=ParseMode.MARKDOWN)
 
 # #################################################
 #                WORD HANDLER                     #
@@ -149,7 +155,7 @@ async def deck_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_word(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Ensure a deck is selected
     if DECK_NAME is None:
-        await update.message.reply_text(locale.get("no_deck_selected"), parse_mode=ParseMode.MARKDOWN)
+        await update.message.reply_text(LOCALE.get("no_deck_selected"), parse_mode=ParseMode.MARKDOWN)
         return
 
     # Clean input text
@@ -176,11 +182,11 @@ async def handle_word(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for word in words:
         try:
             log(f"Processing word: {word}", level="DEBUG")
-            word_obj = Word(word)
+            word_obj = Word(word, learning_language=TARGET_LANGUAGE, translation_language=TRANSLATION_LANGUAGE)
             lemma = word_obj.lemmatize()
             log(f"Lemmatized word: {lemma}", level="DEBUG")
 
-            msg = await update.message.reply_text(locale["processing"].format(word=lemma))
+            msg = await update.message.reply_text(LOCALE["processing"].format(word=lemma))
 
             # Add note to Anki
             log(f"Adding note for: {lemma}", level="DEBUG")
@@ -188,11 +194,11 @@ async def handle_word(update: Update, context: ContextTypes.DEFAULT_TYPE):
             log(f"Note added successfully for: {lemma}", level="DEBUG")
 
             # Notify user of success
-            await msg.edit_text(locale["success"].format(word=lemma))
+            await msg.edit_text(LOCALE["success"].format(word=lemma))
 
         except Exception as e:
             log(f"Error processing word '{word}': {e}", level="ERROR")
-            await update.message.reply_text(f"Error processing word '{word}': {str(e)}")
+            msg = await update.message.reply_text(LOCALE["error_processing_word"].format(word=lemma, error=str(e)))
 
 
 # file import handler
@@ -200,7 +206,7 @@ async def handle_import_file(update: Update, context: ContextTypes.DEFAULT_TYPE)
     # Ensure a deck is selected
     deck_name = deck_manager.get_loaded_deck()
     if deck_name is None:
-        await update.message.reply_text(locale.get("no_deck_selected"), parse_mode=ParseMode.MARKDOWN)
+        await update.message.reply_text(LOCALE.get("no_deck_selected"), parse_mode=ParseMode.MARKDOWN)
         return
 
     file_doc = update.message.document
@@ -208,7 +214,7 @@ async def handle_import_file(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     allowed_ext = (".xlsx", ".csv", ".tsv", ".txt")
     if not filename.endswith(allowed_ext):
-        await update.message.reply_text(locale.get("file_unsupported_format"), parse_mode=ParseMode.MARKDOWN)
+        await update.message.reply_text(LOCALE.get("file_unsupported_format"), parse_mode=ParseMode.MARKDOWN)
         return
 
     temp = tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(filename)[1])
@@ -245,11 +251,11 @@ async def handle_import_file(update: Update, context: ContextTypes.DEFAULT_TYPE)
                         words.append(line)
     except Exception as e:
         log(f"Error reading file '{filename}': {e}", level="ERROR")
-        await update.message.reply_text(locale.get("file_read_error").format(filename=filename, error=str(e)))
+        await update.message.reply_text(LOCALE.get("file_read_error").format(filename=filename, error=str(e)))
         return
 
     if not words:
-        await update.message.reply_text(locale.get("file_empty"), parse_mode=ParseMode.MARKDOWN)
+        await update.message.reply_text(LOCALE.get("file_empty"), parse_mode=ParseMode.MARKDOWN)
         return
 
     anki = AnkiLoader(deck_name=deck_name, endpoint=ANKI_ENDPOINT, model_name=MODEL_NAME)
@@ -257,17 +263,17 @@ async def handle_import_file(update: Update, context: ContextTypes.DEFAULT_TYPE)
     try:
         anki._tryConnectionToAnki()
     except Exception as e:
-        await update.message.reply_text(locale.get("anki_connection_error").format(error=str(e)))
+        await update.message.reply_text(LOCALE.get("anki_connection_error").format(error=str(e)))
         return
 
-    await update.message.reply_text(locale.get("file_import_started").format(num_words=len(words)), parse_mode=ParseMode.MARKDOWN)
+    await update.message.reply_text(LOCALE.get("file_import_started").format(num_words=len(words)), parse_mode=ParseMode.MARKDOWN)
 
     imported = 0
     errors = 0
 
     for word in words:
         try:
-            word_obj = Word(word)
+            word_obj = Word(word, learning_language=TARGET_LANGUAGE, translation_language=TRANSLATION_LANGUAGE)
             lemma = word_obj.lemmatize()
             anki.addNotes(word_obj)
             imported += 1
@@ -275,7 +281,7 @@ async def handle_import_file(update: Update, context: ContextTypes.DEFAULT_TYPE)
             errors += 1
 
     await update.message.reply_text(
-        locale.get("file_import_completed").format(imported=imported, errors=errors),
+        LOCALE.get("file_import_completed").format(imported=imported, errors=errors),
         parse_mode=ParseMode.MARKDOWN,
     )
 

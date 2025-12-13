@@ -63,7 +63,7 @@ BOT_changed_language: "🎉 Langue de l'interface du bot mise à jour avec succ�
 # --- DYNAMIC MESSAGES ---
 processing: "🔍 Traitement de '{word}'..."
 success: "✅ '{word}' ajoutée avec succès à Anki !"
-error: "🚫 Erreur lors du traitement de '{word}' : {error}"
+error_processing_word: "🚫 Erreur lors du traitement de '{word}' : {error}"
 anki_connection_error: "⚠️ Impossible de se connecter à Anki : {error}"
 
 file_unsupported_format: "❌ Format de fichier non pris en charge. Pris en charge : .xlsx, .csv, .tsv, .txt"

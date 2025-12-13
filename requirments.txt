@@ -1,3 +1,5 @@
 python-telegram-bot==20.7
-requests>=2.30.0
-simplemma>=0.9.8
+requests==2.31.0
+openpyxl==3.1.2
+PyYAML==6.0
+simplemma==0.3.0

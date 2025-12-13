@@ -47,8 +47,8 @@ class AnkiLoader:
             "IPA": word_obj.get_IPA(),
             "POS": word_obj.get_POS(),
             "translated_lemma": word_obj.get_translation(),
-            "synonyms": word_obj.get_synonyms(),
-            "antonyms": word_obj.get_antonyms(),
+            "synonyms": ", ".join(word_obj.get_synonyms()) if word_obj.get_synonyms() else "",
+            "antonyms": ", ".join(word_obj.get_antonyms()) if word_obj.get_antonyms() else "",
         }
 
         definitions = word_obj.get_definition()

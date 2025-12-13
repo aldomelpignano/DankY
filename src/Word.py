@@ -6,16 +6,16 @@ import os
 from logger import log
 
 class Word:
-    def __init__(self, word='none', source_language="en", target_language=None):
+    def __init__(self, word='none', learning_language="en", translation_language=None):
         if word == 'none':
             raise ValueError("You must provide a word.")
         
         self.word = word.lower().strip()
         self.rawJson = []
         self.dictionary = f"https://api.dictionaryapi.dev/api/v2/entries/en/{self.word}"
-        self.source_language = source_language
-        self.target_language = target_language
-        log(f"Word object created: '{self.word}', source_lang={source_language}, target_lang={target_language}", level="DEBUG")
+        self.learning_language = learning_language
+        self.translation_language = translation_language
+        log(f"Word object created: '{self.word}', source_lang={learning_language}, target_lang={translation_language}", level="DEBUG")
 
     def _get_json(self):
         if not self.rawJson:
@@ -141,9 +141,9 @@ class Word:
             log(f"Failed to download audio for '{self.word}': {e}", level="ERROR")
 
     def get_translation(self):
-        if self.target_language is None:
+        if self.translation_language is None:
             return ""
-        url = f"https://lingva.ml/api/v1/{self.source_language}/{self.target_language}/{self.word}"
+        url = f"https://lingva.ml/api/v1/{self.learning_language}/{self.translation_language}/{self.word}"
         try:
             r = requests.get(url, timeout=10)
             r.raise_for_status()

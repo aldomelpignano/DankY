@@ -46,7 +46,27 @@ It currently supports English, with more languages — like German — coming so
     ```
     (You can configure this in `config.json` if necessary.)
 
----
+
+### 📝 Import Note Type
+
+To use DankY for the first time, you need to import the DankY note type:
+
+1. Go into the project folder and locate the file:
+
+    ```bash
+    NoteType.apkg
+    ```
+
+2. Open Anki and **import this deck**. The deck is called:
+
+    ```bash
+    DELETE_ME
+    ```
+
+3. After importing, you can safely **delete the DELETE_ME deck** from Anki — the custom note type will remain available for DankY to use.
+
+4. You can also **customize this note type** as you like!
+
 
 ## ▶️ Running the Bot
 
