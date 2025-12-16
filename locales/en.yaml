@@ -57,8 +57,20 @@ about: |
 about_gitHub_button: "🌐 Visit GitHub"
 
 #--- SELECT LANGUAGE MESSAGE --- 
-BOT_select_language: "🌍 Pick the bot interface language you want!"
-BOT_changed_language: "🎉 Bot interface language updated succesfully"
+
+# /lang keyboard button label
+select_language : "🌍 Pick the bot interface language you want to change!"
+inline_bot_language: "Bot Language 🤖"
+inline_target_language: "Target Language 🌐"
+inline_translation_language : "Translation Language 📝"
+back: "⬅️ Back"
+
+select_bot_language: "🌍 Pick the bot interface language you want!"
+select_target_language: "🌍 Pick the language you want to learn!"
+enter_translation_language: "🌍 Please type the translation language you want (e.g., 'fr', 'de', 'en')"
+
+language_set_successfully: "🎉 Language succesfully updated"
+
 
 # --- DYNAMIC MESSAGES ---
 processing: "🔍 Processing '{word}'..."

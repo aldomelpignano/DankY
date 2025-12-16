@@ -57,8 +57,17 @@ about: |
 about_gitHub_button: "🌐 Visita GitHub"
 
 #--- SELECT LANGUAGE MESSAGE --- 
-BOT_select_language: "🌍 Scegli la lingua dell'interfaccia del bot!"
-BOT_changed_language: "🎉 Lingua dell'interfaccia del bot aggiornata con successo"
+select_language: "🌍 Scegli la lingua dell'interfaccia del bot che vuoi cambiare!"
+inline_bot_language: "Lingua del Bot 🤖"
+inline_target_language: "Lingua da imparare 🌐"
+inline_translation_language: "Lingua di traduzione 📝"
+back: "⬅️ Indietro"
+
+select_bot_language: "🌍 Scegli la lingua dell'interfaccia del bot!"
+select_target_language: "🌍 Scegli la lingua che vuoi imparare!"
+enter_translation_language: "🌍 Per favore scrivi la lingua di traduzione che vuoi usare (es. 'fr', 'de', 'en')"
+
+language_set_successfully: "🎉 Lingua aggiornata con successo"
 
 # --- DYNAMIC MESSAGES ---
 processing: "🔍 Elaborazione '{word}'..."
@@ -71,7 +80,6 @@ file_empty: "❌ Il file è vuoto o non contiene parole valide."
 file_read_error: "❌ Errore durante la lettura del file '{filename}': {error}"
 file_import_started: "🔍 Importazione avviata: {num_words} parole trovate..."
 file_import_completed: "✅ Importazione completata!\n• Aggiunte: *{imported}*\n• Errori: *{errors}*"
-
 
 # --- DECK COMMAND MESSAGES ---
 no_deck_name_provided: "❌ ERRORE: Devi specificare un nome di mazzo. Uso corretto: /deck _[NomeMazzo]_"

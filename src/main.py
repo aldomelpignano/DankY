@@ -88,45 +88,208 @@ async def about_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     )
 
+########################################################
+#                   Language Manager                   #
+########################################################
 # /lang command: allow user to select bot language
 async def lang_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    available_languages = lang_manager.get_available_languages()  # get supported languages
-    languages_list = list(available_languages.items())
-    buttons_per_row = 2
+    """Display language selection menu: BOT_language, Translation_language, Target_language"""
 
-    # Create inline keyboard for language selection
     keyboard = [
-        [
-            InlineKeyboardButton(name_flag, callback_data=f"set_lang:{code}")
-            for code, name_flag in languages_list[i:i + buttons_per_row]
-        ]
-        for i in range(0, len(languages_list), buttons_per_row)
+        [InlineKeyboardButton(LOCALE.get("inline_bot_language"), callback_data="lang_select:bot")],
+        [InlineKeyboardButton(LOCALE.get("inline_target_language"), callback_data="lang_select:target")],
+        [InlineKeyboardButton(LOCALE.get("inline_translation_language"), callback_data="lang_select:translation")]
     ]
-    
-    await update.message.reply_text(LOCALE.get("BOT_select_language"), reply_markup=InlineKeyboardMarkup(keyboard))
 
-# Callback handler for inline language buttons
+    await update.message.reply_text(LOCALE.get("select_language"), reply_markup=InlineKeyboardMarkup(keyboard))
+
+
+# Callback handler for multi-level language selection
 async def lang_button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle multi-level language selection menus"""
     global LOCALE
+
     query = update.callback_query
-    await query.answer()  # acknowledge the button press
-
+    await query.answer()
     data = query.data
-    if data.startswith("set_lang:"):
-        lang_code = data.split(":")[1]
 
-        # Update bot language in LanguageManager and save in config.json
-        lang_manager.set_languages(
-            bot_lang=lang_code,
-            target_lang=lang_manager.target_language,
-            translation_lang=lang_manager.translation_language
-        )
-        
-        # Reload localized messages
-        LOCALE = lang_manager.load_locale()
+    # #################################################
+    #                    Back button                  #
+    # #################################################
+    if data == "lang_back":
+        # go back to main language menu
+        keyboard = [
+            [InlineKeyboardButton(LOCALE.get("inline_bot_language"), callback_data="lang_select:bot")],
+            [InlineKeyboardButton(LOCALE.get("inline_target_language"), callback_data="lang_select:target")],
+            [InlineKeyboardButton(LOCALE.get("inline_translation_language"), callback_data="lang_select:translation")]
+        ]
 
-        # Notify user of successful language change
-        await query.edit_message_text(LOCALE.get("BOT_changed_language"))
+        await query.edit_message_text(LOCALE.get("select_language"), reply_markup=InlineKeyboardMarkup(keyboard))
+        return # end 
+
+    # #################################################
+    #              Level 1: Choose language type     #
+    # #################################################
+    if data.startswith("lang_select:"):
+        lang_type = data.split(":")[1]
+
+        if lang_type == "bot":
+            # show available bot languages from locales/yaml
+            languages_list = list(lang_manager.get_available_languages().items())
+            buttons_per_row = 2  # number of buttons per row
+            keyboard = []
+    
+            # create buttons in rows
+            for i in range(0, len(languages_list), buttons_per_row):
+                row = []
+                for code, name_flag in languages_list[i:i + buttons_per_row]:
+                    row.append(InlineKeyboardButton(name_flag, callback_data=f"set_lang:bot:{code}"))
+                keyboard.append(row)
+            keyboard.append([InlineKeyboardButton(LOCALE.get("back"), callback_data="lang_back")])
+            await query.edit_message_text(LOCALE.get("select_bot_language"), reply_markup=InlineKeyboardMarkup(keyboard))
+
+        elif lang_type == "target":
+
+            # show hardcoded target languages for simplicity
+            target_langs = [("en", "English")]
+
+            buttons_per_row = 2
+
+            keyboard = []
+
+            # create buttons in rows from target_langs
+            for i in range(0, len(target_langs), buttons_per_row):
+                row = []
+                for code, name_flag in target_langs[i:i + buttons_per_row]:
+                    row.append(InlineKeyboardButton(name_flag, callback_data=f"set_lang:target:{code}"))
+                keyboard.append(row)
+            keyboard.append([InlineKeyboardButton(LOCALE.get("back"), callback_data="lang_back")])
+            await query.edit_message_text(LOCALE.get("select_target_language"), reply_markup=InlineKeyboardMarkup(keyboard))
+
+        elif lang_type == "translation":
+            # ask user to type translation language in chat
+            context.user_data["awaiting_translation_lang"] = True
+
+            # keyboard with only Back button
+            keyboard = [
+                [InlineKeyboardButton(LOCALE.get("back"), callback_data="lang_back")]
+            ]
+            await query.edit_message_text(
+                LOCALE.get("enter_translation_language"),
+                reply_markup=InlineKeyboardMarkup(keyboard)
+            )
+
+    # #################################################
+    #              Level 2: Set language             #
+    # #################################################
+    elif data.startswith("set_lang:"):
+        parts = data.split(":")
+        lang_scope = parts[1]
+        lang_code = parts[2]
+
+        # Update language depending on scope
+        if lang_scope == "bot":
+            lang_manager.set_languages(
+                bot_lang=lang_code, 
+                target_lang=lang_manager.target_language, 
+                translation_lang=lang_manager.translation_language
+            )
+            if lang_scope == "bot":
+                LOCALE = lang_manager.load_locale()  # reload locale if bot language changes
+
+        elif lang_scope == "target":
+            lang_manager.set_languages(
+                bot_lang=lang_manager.bot_language, 
+                target_lang=lang_code, 
+                translation_lang=lang_manager.translation_language
+            )
+
+        # Send the same success message for both
+        await query.edit_message_text(LOCALE.get("language_set_successfully"))
+
+
+# #################################################
+#              Handle translation input           #
+# #################################################
+async def handle_translation_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handles the user input for translation language"""
+    user_input = update.message.text.strip()
+    if not user_input:
+        await update.message.reply_text("Inserisci una lingua valida!")
+        return
+
+    # Update translation language only for this user
+    lang_manager.set_languages(
+        bot_lang=lang_manager.bot_language,
+        target_lang=lang_manager.target_language,
+        translation_lang=user_input
+    )
+    context.user_data["translation_language"] = user_input
+    context.user_data["awaiting_translation_lang"] = False
+
+    await update.message.reply_text(f"Translation language set to: {user_input}")
+
+    # Return to main language menu
+    keyboard = [
+        [InlineKeyboardButton(LOCALE.get("inline_bot_language"), callback_data="lang_select:bot")],
+        [InlineKeyboardButton(LOCALE.get("inline_target_language"), callback_data="lang_select:target")],
+        [InlineKeyboardButton(LOCALE.get("inline_translation_language"), callback_data="lang_select:translation")]
+    ]
+    await update.message.reply_text(LOCALE.get("select_language"), reply_markup=InlineKeyboardMarkup(keyboard))
+
+
+# #################################################
+#                WORD HANDLER                     #
+# #################################################
+async def handle_word_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handles word input and adds notes to Anki"""
+    deck_name = deck_manager.get_loaded_deck()
+    if deck_name is None:
+        await update.message.reply_text(LOCALE.get("no_deck_selected"), parse_mode=ParseMode.MARKDOWN)
+        return
+
+    raw_text = update.message.text.replace("\u200b", "").replace("\r", "").strip()
+    words = [w.strip().lower() for w in raw_text.replace("\n", " ").replace(",", " ").split() if w.strip()]
+
+    if not words:
+        await update.message.reply_text("Nessuna parola valida trovata nel testo.")
+        return
+
+    # Retrieve user's translation language or fallback global
+    translation_lang = context.user_data.get("translation_language", TRANSLATION_LANGUAGE)
+    target_lang = TARGET_LANGUAGE
+
+    anki = AnkiLoader(deck_name=deck_name, endpoint=ANKI_ENDPOINT, model_name=MODEL_NAME)
+
+    try:
+        anki._tryConnectionToAnki()
+    except Exception as e:
+        await update.message.reply_text(f"Anki connection failed: {str(e)}")
+        return
+
+    for word in words:
+        try:
+            word_obj = Word(word, learning_language=target_lang, translation_language=translation_lang)
+            lemma = word_obj.lemmatize()
+            msg = await update.message.reply_text(LOCALE["processing"].format(word=lemma))
+
+            anki.addNotes(word_obj)
+            await msg.edit_text(LOCALE["success"].format(word=lemma))
+        except Exception as e:
+            log(f"Error processing word '{word}': {e}", level="ERROR")
+            await update.message.reply_text(LOCALE["error_processing_word"].format(word=word, error=str(e)))
+
+
+# #################################################
+#              Handle text input                  #
+# #################################################
+async def handle_text_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Routes the user input either to translation language handler or word handler"""
+    if context.user_data.get("awaiting_translation_lang"):
+        await handle_translation_input(update, context)
+    else:
+        await handle_word_input(update, context)
+
 
 # /deck command: set the deck to be used
 async def deck_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -147,58 +310,6 @@ async def deck_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global DECK_NAME
     DECK_NAME = deck_name
     await update.message.reply_text(LOCALE.get("deck_set_success").format(deck=deck_name), parse_mode=ParseMode.MARKDOWN)
-
-# #################################################
-#                WORD HANDLER                     #
-# #################################################
-
-async def handle_word(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Ensure a deck is selected
-    if DECK_NAME is None:
-        await update.message.reply_text(LOCALE.get("no_deck_selected"), parse_mode=ParseMode.MARKDOWN)
-        return
-
-    # Clean input text
-    raw_text = update.message.text.replace("\u200b", "").replace("\r", "").strip()
-    words = [w.strip().lower() for w in raw_text.replace("\n", " ").replace(",", " ").split() if w.strip()]
-
-    log(f"Raw input: {update.message.text}", level="DEBUG")
-    log(f"Cleaned words list: {words}", level="DEBUG")
-
-    # Initialize Anki loader
-    anki = AnkiLoader(deck_name=DECK_NAME, endpoint=ANKI_ENDPOINT, model_name=MODEL_NAME)
-
-    # Attempt connection to Anki
-    try:
-        log("Trying to connect to Anki...", level="DEBUG")
-        anki._tryConnectionToAnki()
-        log("Connected to Anki successfully!", level="DEBUG")
-    except Exception as e:
-        log(f"Anki connection failed: {e}", level="ERROR")
-        await update.message.reply_text(f"Anki connection failed: {str(e)}")
-        return
-
-    # Process each word
-    for word in words:
-        try:
-            log(f"Processing word: {word}", level="DEBUG")
-            word_obj = Word(word, learning_language=TARGET_LANGUAGE, translation_language=TRANSLATION_LANGUAGE)
-            lemma = word_obj.lemmatize()
-            log(f"Lemmatized word: {lemma}", level="DEBUG")
-
-            msg = await update.message.reply_text(LOCALE["processing"].format(word=lemma))
-
-            # Add note to Anki
-            log(f"Adding note for: {lemma}", level="DEBUG")
-            anki.addNotes(word_obj)
-            log(f"Note added successfully for: {lemma}", level="DEBUG")
-
-            # Notify user of success
-            await msg.edit_text(LOCALE["success"].format(word=lemma))
-
-        except Exception as e:
-            log(f"Error processing word '{word}': {e}", level="ERROR")
-            msg = await update.message.reply_text(LOCALE["error_processing_word"].format(word=lemma, error=str(e)))
 
 
 # file import handler
@@ -298,10 +409,10 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler("about", about_command))
     app.add_handler(CommandHandler("deck", deck_command))
     app.add_handler(CommandHandler("lang", lang_command))
-    app.add_handler(CallbackQueryHandler(lang_button_callback, pattern=r"^set_lang:"))
+    app.add_handler(CallbackQueryHandler(lang_button_callback, pattern=r"^(lang_select:|set_lang:|lang_back)"))
 
     # Handle text messages and file uploads
-    app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_word))
+    app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_text_input))
     app.add_handler(MessageHandler(filters.Document.ALL, handle_import_file))
 
     log("Bot is running...", level="DEBUG")
