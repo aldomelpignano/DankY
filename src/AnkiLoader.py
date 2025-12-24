@@ -2,7 +2,6 @@
 
 import requests
 import json
-
 from Word import Word
 from logger import log
 
