@@ -2,5 +2,8 @@ python-telegram-bot==20.7
 requests==2.31.0
 openpyxl==3.1.2
 PyYAML==6.0
-simplemma==0.3.0
 treetaggerwrapper>=2.3
+deep-translator>=1.11.0
+duden>=0.12.0
+nest-asyncio>=1.5.0
+epitran>=1.2.0

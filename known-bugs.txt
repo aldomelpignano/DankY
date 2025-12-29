@@ -1,0 +1,39 @@
+###############################################################################
+# Known Bugs and Issues
+#
+# This file documents known bugs, limitations, and issues in the DankY bot.
+# Bugs are listed in order of priority/severity.
+###############################################################################
+
+## Fixed Issues (Resolved in Recent Updates)
+# These issues have been addressed but are kept for reference:
+
+1. ✅ **No message when deck not selected**
+   - Status: FIXED
+   - Description: Previously, when sending a word without a deck selected, no error message was shown.
+   - Solution: Added proper error handling that displays a localized message when no deck is selected.
+
+2. ✅ **Delayed processing message**
+   - Status: FIXED
+   - Description: The "Processing..." message appeared with a delay, making the bot feel unresponsive.
+   - Solution: Processing message now appears immediately and updates in real-time with success/error messages.
+
+## Current Known Issues
+
+1. **Duplicate detection across all decks**
+   - Status: OPEN
+   - Severity: Medium
+   - Description: The bot checks for duplicate words across all decks in Anki, not just the selected deck. 
+     If a word exists in any deck, it will be rejected even if it doesn't exist in the currently selected deck.
+   - Impact: Users cannot add the same word to different decks.
+   - Workaround: Use different deck names or manually add words to different decks via Anki.
+   - Expected behavior: Duplicate check should only consider the currently selected deck.
+
+
+###############################################################################
+# Reporting Bugs
+#
+# If you find a new bug, please report it via:
+# - GitHub Issues: https://github.com/aldomelpignano/DankY/issues
+# - Include: steps to reproduce, expected vs actual behavior, error messages
+###############################################################################

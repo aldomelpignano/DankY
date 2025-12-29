@@ -74,5 +74,5 @@ rm -rf doc
 echo -e "${BLUE}=== TreeTagger setup completed! ✅ ===${NC}"
 
 #      /\_/\  
-#     ( o.o )  <WOOF>
+#     ( o.o )  <QUACK QUACK>
 #      > ^ <  

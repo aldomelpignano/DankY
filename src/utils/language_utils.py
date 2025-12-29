@@ -1,50 +1,28 @@
-# src/LanguageManager.py
+###############################################################################
+# src/utils/language_utils.py
+#
+# Language and localization manager.
+# Handles bot language, target language (English/German), and translation language.
+# Loads locale files (YAML) for bot interface messages.
+# Manages available languages and language switching.
+###############################################################################
 
-import json
 import yaml
 import os
-from logger import log
+from src.utils.logging_utils import log
+from src.utils.config_utils import ConfigManager
 
-class LanguageManager:
+class LanguageUtils:
     def __init__(self):
-        self.config_path = os.path.abspath(os.path.join(__file__, "../../config.json"))
-        self.locales_dir = os.path.join(os.path.dirname(__file__), "../locales")
+        # Usa ConfigManager invece di leggere JSON direttamente
+        self.config_manager = ConfigManager()
+        self.locales_dir = os.path.join(os.path.dirname(__file__), "../../locales")
 
-        # Load configuration
-        self.config = self._load_config()
+        # set languages from config o default
+        self.bot_language = self.config_manager.get("BOT_LANGUAGE", "en")
+        self.target_language = self.config_manager.get("TARGET_LANGUAGE", "en")
+        self.translation_language = self.config_manager.get("TRANSLATION_LANGUAGE", None)
 
-        # set languages from config or defaults
-        self.bot_language = self.config.get("BOT_LANGUAGE", "en")
-        self.target_language = self.config.get("TARGET_LANGUAGE", "en")
-        self.translation_language = self.config.get("TRANSLATION_LANGUAGE", None)
-
-        log(f"LanguageManager initialized: bot={self.bot_language}, target={self.target_language}, translation={self.translation_language}", level="DEBUG")
-
-    # ------------------------- CONFIG -------------------------
-    def _load_config(self):
-        try:
-            with open(self.config_path, encoding="utf-8") as f:
-                config = json.load(f)
-                log(f"Config loaded from {self.config_path}", level="DEBUG")
-                return config
-        except FileNotFoundError:
-            log(f"Config file not found, creating default config", level="WARNING")
-            default_config = {
-                "BOT_LANGUAGE": "en",
-                "TARGET_LANGUAGE": "en",
-                "TRANSLATION_LANGUAGE": None,
-                "SELECTED_DECK": None
-            }
-            self._save_config(default_config)
-            return default_config
-        except json.JSONDecodeError as e:
-            log(f"Error decoding JSON config: {e}", level="ERROR")
-            return {}
-
-    def _save_config(self, config):
-        with open(self.config_path, "w", encoding="utf-8") as f:
-            json.dump(config, f, indent=4, ensure_ascii=False)
-        log(f"Config saved to {self.config_path}", level="DEBUG")
 
     # ------------------------- GETTER / SETTER -------------------------
     def get_bot_language(self):
@@ -56,20 +34,17 @@ class LanguageManager:
     def get_translation_language(self):
         return self.translation_language
 
-    #set_languages
     def set_languages(self, bot_lang: str = None, target_lang: str = None, translation_lang: str = None):
         if bot_lang:
             self.bot_language = bot_lang
-            self.config["BOT_LANGUAGE"] = bot_lang
+            self.config_manager.set("BOT_LANGUAGE", bot_lang)
         if target_lang:
             self.target_language = target_lang
-            self.config["TARGET_LANGUAGE"] = target_lang
+            self.config_manager.set("TARGET_LANGUAGE", target_lang)
         if translation_lang:
             self.translation_language = translation_lang
-            self.config["TRANSLATION_LANGUAGE"] = translation_lang
+            self.config_manager.set("TRANSLATION_LANGUAGE", translation_lang)
 
-        self._save_config(self.config)
-        log(f"Languages updated: bot={self.bot_language}, target={self.target_language}, translation={self.translation_language}", level="DEBUG")
 
     # ------------------------- LOCALE -------------------------
     def load_locale(self, lang_code: str = None):
@@ -82,7 +57,6 @@ class LanguageManager:
 
         with open(path, encoding="utf-8") as f:
             data = yaml.safe_load(f)
-            log(f"Locale loaded for '{lang_code}': {list(data.keys())[:5]}...", level="DEBUG")
             return data
 
     # ------------------------- UTILITY -------------------------
@@ -116,5 +90,4 @@ class LanguageManager:
 
         available_codes = [f.split(".")[0] for f in os.listdir(self.locales_dir) if f.endswith(".yaml")]
         langs = {code: language_info.get(code, "Unknown 🏳️") for code in available_codes}
-        log(f"Available languages found: {langs}", level="DEBUG")
         return langs

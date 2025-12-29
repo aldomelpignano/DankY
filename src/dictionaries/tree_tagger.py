@@ -1,4 +1,12 @@
-# /TreeTagger/TreeTagger.py
+###############################################################################
+# src/dictionaries/tree_tagger.py
+#
+# TreeTagger Python Wrapper
+#
+# Provides a high-level interface to TreeTagger for lemmatization and POS tagging.
+# Used for both English and German word processing.
+# Simplifies TreeTagger POS tags into readable English categories.
+###############################################################################
 
 """
 TreeTagger Python Wrapper
@@ -77,21 +85,3 @@ class TreeTagger:
         """Return the lemma of the word as a string."""
         lemma_list = [t.lemma for t in self.parsed_tags if t is not None]
         return " ".join(lemma_list)
-
-def main():
-    word = input("Enter a German word to tag: ").strip()
-    
-    # Inizializza il wrapper
-    try:
-        tagger = TreeTagger(word, lang='de')  # 'de' per tedesco
-    except RuntimeError as e:
-        print(f"Error: {e}")
-        return
-
-    # Stampa POS semplificato e lemma
-    print(f"Word: {word}")
-    print(f"POS: {tagger.get_pos()}")
-    print(f"Lemma: {tagger.get_lemma()}")
-
-if __name__ == "__main__":
-    main()

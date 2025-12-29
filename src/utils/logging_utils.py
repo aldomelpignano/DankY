@@ -1,4 +1,10 @@
-# src/logger.py
+###############################################################################
+# src/utils/logging_utils.py
+#
+# Logging utility module.
+# Sets up file and console logging with daily log files organized by month.
+# Provides a simple log() function for logging messages at different levels.
+###############################################################################
 
 import logging
 import os
@@ -6,7 +12,7 @@ from datetime import datetime
 
 ## Folder setup ##
 # Base logs folder
-folder = os.path.abspath(os.path.join(__file__, "../../logs"))
+folder = os.path.abspath(os.path.join(__file__, "../../../logs"))
 
 # Subfolder for the current month (YYYY-MM)
 month_folder = os.path.join(folder, datetime.now().strftime("%Y-%m"))
